@@ -1,8 +1,8 @@
-import { Button, Table, Dropdown } from "antd";
+import { Button, Dropdown } from "antd";
 import "./App.css";
 import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
-import { useRation } from "./queries";
+import { v4 as uuidv4 } from "uuid";
+import { fetchRation, useRation } from "./queries";
 import { DashOutlined } from "@ant-design/icons";
 import { EditableCell, EditableRow } from "./table/ModifyTable";
 import RationTable from "./table/RationTable";
@@ -54,7 +54,7 @@ const App = () => {
     },
     {
       key: "quantity",
-      title: "Quantity in Litres ",
+      title: "Quantity in Litres",
       dataIndex: "quantity",
       editable: true,
       width: "5%",
@@ -64,14 +64,16 @@ const App = () => {
       title: "operation",
       dataIndex: "operation",
       width: "5%",
-      render: (_, record) =>
-        ration.data.length >= 1 ? (
+      render: (_, record) => {
+        return ration.data.length >= 1 ? (
           <Dropdown
             menu={{
               items: [
                 {
                   key: "1",
-                  label: <a onClick={(e) => e.preventDefault()}>Update</a>,
+                  label: (
+                    <a onClick={(e) => handleSingleUpdate(e, record)}>Update</a>
+                  ),
                 },
                 {
                   key: "2",
@@ -91,13 +93,15 @@ const App = () => {
               <DashOutlined style={{ marginLeft: 15, fontSize: 20 }} />
             </a>
           </Dropdown>
-        ) : null,
+        ) : null;
+      },
     },
   ];
 
   const handleAdd = () => {
     const newData = {
       key: count,
+      _id: uuidv4().split("-").join("").slice(0, 24),
     };
     setDataSource([...dataSource, newData]);
     setCount(count + 1);
@@ -106,7 +110,7 @@ const App = () => {
   const handleSave = (row) => {
     const newData = [...dataSource];
     console.log("newData", newData);
-    const index = newData.findIndex((item) => row.key === item.key);
+    const index = newData.findIndex((item) => row._id === item._id);
     const item = newData[index];
     newData.splice(index, 1, { ...item, ...row });
     setDataSource(newData);
@@ -130,6 +134,20 @@ const App = () => {
     };
   });
 
+  function handleSingleUpdate(e, record) {
+    e.preventDefault();
+    console.log("record", record);
+    const toSendData = { packetType: "Food" };
+    const data = fetchRation("POST", record._id, toSendData);
+    data
+      .then((res) => {
+        console.log(res);
+      })
+      .catch((e) => {
+        console.log(`error:${e}`);
+      });
+  }
+
   return (
     <div className="flex items-center border justify-center w-full h-screen">
       <div>
@@ -141,7 +159,7 @@ const App = () => {
               marginBottom: 16,
             }}
           >
-            Add a row
+            Add Data
           </Button>
           <Button
             disabled

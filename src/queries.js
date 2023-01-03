@@ -2,18 +2,22 @@ import { useEffect, useState } from "react";
 import { rationApi } from "./server";
 
 //type:get,getOne,add,delete,modify
-export async function fetchRation(type) {
-  const response = await fetch(rationApi());
+export async function fetchRation(type, id, toSendData) {
+  const response = await fetch(rationApi(id), {
+    method: type,
+    mode: type === "POST" ? "no-cors" : "cors",
+    body: toSendData && JSON.stringify(toSendData),
+  });
   const data = await response.json();
   return data;
 }
 
-export function useRation(type) {
+export function useRation(type, id, toSendData) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetchRation(type)
+    fetchRation(type, id, toSendData)
       .then((res) => {
         setData(res);
         setLoading(false);
@@ -22,7 +26,7 @@ export function useRation(type) {
         console.log(`error:${e}`);
         setLoading(false);
       });
-  }, [type]);
+  }, [type, id, toSendData]);
 
   return { data, loading };
 }

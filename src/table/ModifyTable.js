@@ -1,5 +1,6 @@
 import { Form, Input, Popconfirm, Select, DatePicker } from "antd";
 import React, { useContext, useRef, useState, useEffect } from "react";
+import dayjs from "dayjs";
 const EditableContext = React.createContext(null);
 
 export const EditableRow = ({ index, ...props }) => {
@@ -66,22 +67,44 @@ export const EditableCell = ({
           },
         ]}
       >
-        {dataIndex === "packetType" ? (
-          <Select
-            onBlur={save}
-            ref={inputRef}
-            // defaultValue="Food"
-            // onChange={handleChange}
-          >
-            <Select.Option value="Food">Food</Select.Option>
-            <Select.Option value="Water">Water</Select.Option>
-          </Select>
-        ) : dataIndex === "expiry_date" ? (
-          // <Input ref={inputRef} onPressEnter={save} onBlur={save} />
-          <DatePicker ref={inputRef} onPressEnter={save} onBlur={save} />
-        ) : (
-          <Input ref={inputRef} onPressEnter={save} onBlur={save} />
-        )}
+        {<Input ref={inputRef} onPressEnter={save} onBlur={save} />}
+      </Form.Item>
+    ) : dataIndex === "packetType" ? (
+      <Form.Item
+        name={dataIndex}
+        initialValue={record.packetType}
+        rules={[
+          {
+            required: true,
+            message: `${title} is required.`,
+          },
+        ]}
+        style={{ width: 100, margin: 0 }}
+      >
+        <Select
+          onBlur={save}
+          ref={inputRef}
+
+          // onChange={handleChange}
+        >
+          <Select.Option value="Food">Food</Select.Option>
+          <Select.Option value="Water">Water</Select.Option>
+        </Select>
+      </Form.Item>
+    ) : dataIndex === "expiry_date" ? (
+      // <Input ref={inputRef} onPressEnter={save} onBlur={save} />
+      <Form.Item
+        name={dataIndex}
+        initialValue={record?.expiry_date || dayjs()}
+        rules={[
+          {
+            required: true,
+            message: `${title} is required.`,
+          },
+        ]}
+        style={{ margin: 0 }}
+      >
+        <DatePicker ref={inputRef} onPressEnter={save} onBlur={save} />
       </Form.Item>
     ) : (
       <div
