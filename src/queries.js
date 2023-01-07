@@ -5,8 +5,10 @@ import { rationApi } from "./server";
 export async function fetchRation(type, id, toSendData) {
   const response = await fetch(rationApi(id), {
     method: type,
-    mode: type === "POST" ? "no-cors" : "cors",
-    body: toSendData && JSON.stringify(toSendData),
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(toSendData),
   });
   const data = await response.json();
   return data;
